@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Loan Broker Service</title>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            var socket = new SockJS('/messaging-bridge');
+            var stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                stompClient.subscribe('/topic/messaging-bridge', function (cloudEvent) {
+                    console.log(cloudEvent);
+                    // Textarea part.
+                    // var content = document.getElementById("textarea").value;
+                    // document.getElementById("textarea").value = cloudEvent.body + "\n\n" + content;
+                    // Table part.
+                    var cloudEventJson = JSON.parse(cloudEvent.body);
+                    var table = document.getElementById("table")
+                    var row = table.insertRow(1);
+                    row.insertCell(0).innerHTML = cloudEventJson.incoming;
+                    row.insertCell(1).innerHTML = cloudEventJson.outgoing;
+                });
+            });
+        });
+    </script>
+
+    <style>
+        table {
+            width: 100%;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 10px;
+        }
+
+        td,
+        th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- <h4>Messages:</h4> -->
+    <!-- <textarea id="textarea" rows="40" style="width:100%;"></textarea> -->
+    <table id="table">
+        <tr>
+            <th>Request</th>
+            <th>Reply</th>
+        </tr>
+    </table>
+</body>
+
+</html>
