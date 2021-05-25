@@ -60,7 +60,7 @@ public class Service {
     // node.put("service", "processed");
     // outMsg.setData(node);
 
-    cloudEvent = new Bank().processMessage(cloudEvent);
+    outMsg = new Bank().processMessage(outMsg);
 
     websocketsTemplate.convertAndSend("/topic/messaging-bridge", JsonNodeFactory.instance.objectNode()
         .put("incoming", cloudEvent.toString()).put("outgoing", outMsg.toString()));
