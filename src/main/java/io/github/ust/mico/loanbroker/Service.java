@@ -46,26 +46,26 @@ public class Service {
   public void processMessage(MicoCloudEventImpl<JsonNode> cloudEvent) {
     log.info("Input message to process: '{}'", cloudEvent);
 
-    MicoCloudEventImpl<JsonNode> outMsg = new MicoCloudEventImpl<JsonNode>(cloudEvent);
+    String incomingCloudEventString = cloudEvent.toString();
 
     // Get return address to where the processed message should be sent back.
-    String returnAddress = outMsg.getReturnTopic().orElse("");
+    String returnAddress = cloudEvent.getReturnTopic().orElse("");
     // Set correlationid to current (msg) id.
-    outMsg.setCorrelationId(outMsg.getId());
+    cloudEvent.setCorrelationId(cloudEvent.getId());
     // And create and set a new (msg) id.
-    outMsg.setRandomId();
+    cloudEvent.setRandomId();
 
     // Set content
     // ObjectNode node = JsonNodeFactory.instance.objectNode();
     // node.put("service", "processed");
     // outMsg.setData(node);
 
-    outMsg = new Bank().processMessage(outMsg);
+    cloudEvent = new Bank().processMessage(cloudEvent);
 
     websocketsTemplate.convertAndSend("/topic/messaging-bridge", JsonNodeFactory.instance.objectNode()
-        .put("incoming", cloudEvent.toString()).put("outgoing", outMsg.toString()));
+        .put("incoming", incomingCloudEventString).put("outgoing", cloudEvent.toString()));
 
-    sender.send(outMsg, returnAddress);
+    sender.send(cloudEvent, returnAddress);
   }
 
 }
